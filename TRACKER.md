@@ -9,7 +9,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 04 | Rule engine (core) | 02 | done | 13/13 green (`RuleEvaluatorTest`); suite 36/36; QA clean | 096d752 |
 | 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45; QA clean | 149e22e |
 | 06 | Two-layer cache + fallback | 05 | done | 14/14 green (10 orchestration + 3 L2 + 1 L1 TTL); suite 59/59; QA clean | 2cfa570 |
-| 07 | Percentage rollout (extension) | 06 | done | 8/8 green (2 bucketer + 5 evaluator + 1 L2); suite 67/67 | 96fe0ed |
+| 07 | Percentage rollout (extension) | 06 | done | 8/8 green (2 bucketer + 5 evaluator + 1 L2); suite 67/67; QA clean | 96fe0ed |
 | 08 | CI, Docker, README | 03–07 | ready | – | – |
 
 ## Journey to destination
@@ -147,3 +147,9 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
   - `shouldNotLeakExcludedResultToDifferentUserViaL2Cache`
   - (+ prior suite unmodified)
 - Notes: `RolloutBucketer` via Guava `murmur3_32_fixed` (33.6.0-jre); `Reason.ROLLOUT_EXCLUDED`; null percentage ≡ core path; no fall-through; L2 unchanged. Manual compose rollout demo deferred (no Docker).
+
+### 2026-07-18 — 07 QA gate
+- Reviews: Bugbot — 0 findings; Prompt 7 / issue compliance spot-checked green
+- Suite: `mvn -B verify` BUILD SUCCESS (67/67)
+- Fixes: none required (QA-01 documented as no-op)
+- Result: clean — bullet 07 remains done; frontier still 08

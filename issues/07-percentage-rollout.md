@@ -31,3 +31,14 @@
 - src/test/java/com/ffaas/engine/ — existing tests that must stay untouched
 - PRD.md §4.3 — rollout semantics (authoritative)
 - pom.xml — if adding Guava, pin a current version
+
+## QA gate (2026-07-18)
+
+**Reviews:** Bugbot — 0 findings. Spec/compliance pass against Prompt 7 / this issue.
+
+**Suite:** `mvn -B verify` — Tests run: 67, Failures: 0, Errors: 0, BUILD SUCCESS.
+
+**Extra checks:** Rollout spot-check — Guava `murmur3_32_fixed` + `Integer.MIN_VALUE`-safe abs; include iff `bucket < percentage`; exclude → `defaultState` + `ROLLOUT_EXCLUDED` + rule id, no fall-through; null percentage ≡ core; `RuleEvaluatorTest` unmodified; engine free of Spring. Manual compose rollout demo remains deferred (no Docker).
+
+### Fix tasks
+- [x] QA-01: No code defects in percentage-rollout scope — nothing to change in `src/`
