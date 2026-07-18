@@ -10,7 +10,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45; QA clean | 149e22e |
 | 06 | Two-layer cache + fallback | 05 | done | 14/14 green (10 orchestration + 3 L2 + 1 L1 TTL); suite 59/59; QA clean | 2cfa570 |
 | 07 | Percentage rollout (extension) | 06 | done | 8/8 green (2 bucketer + 5 evaluator + 1 L2); suite 67/67; QA clean | 96fe0ed |
-| 08 | CI, Docker, README | 03–07 | done | suite 67/67 green (`mvn -B verify`); no new unit tests | 1f897cc |
+| 08 | CI, Docker, README | 03–07 | done | suite 67/67 green (`mvn -B verify`); no new unit tests; QA clean | 1f897cc |
 
 ## Journey to destination
 [x] 01 scaffold → [x] 02 persistence → [x] 03 CRUD API → [x] 04 rule engine → [x] 05 evaluate endpoint → [x] 06 cache → [x] 07 rollout → [x] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
@@ -158,3 +158,9 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 - Status: done
 - Tests: `mvn -B verify` — Tests run: 67, Failures: 0, Errors: 0 (no new unit tests; acceptance = full suite green)
 - Notes: GitHub Actions CI (Temurin 21 + Maven cache → `mvn -B verify`); compose `app` service depends_on healthy postgres with `DB_*` env; Dockerfile extended (`apk add wget` for HEALTHCHECK); README with badge, quickstart, curl walkthrough, DO App Platform notes, known limitations. Manual `docker compose up --build` deferred (Docker not installed in this environment).
+
+### 2026-07-18 — 08 QA gate
+- Reviews: Bugbot — 0 findings; Prompt 8 / issue compliance spot-checked green
+- Suite: `mvn -B verify` BUILD SUCCESS (67/67)
+- Fixes: none required (QA-01 documented as no-op)
+- Result: clean — bullet 08 remains done; journey complete 🏁

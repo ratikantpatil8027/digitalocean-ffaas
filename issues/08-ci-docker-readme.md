@@ -16,14 +16,25 @@
 - `.dockerignore` (**already present**): confirm ignores (target, .git, .idea); confirm `.gitignore`.
 
 ## Acceptance criteria (as test names)
-- [ ] (no new unit tests) full existing suite green via `mvn -B verify`
+- [x] (no new unit tests) full existing suite green via `mvn -B verify`
 
 ## Manual verification
 - [ ] `docker compose up --build` → app healthy; entire README curl walkthrough passes against the containerized stack
-- [ ] CI YAML parses; first push runs green
+- [x] CI YAML parses; first push runs green
 
 ## Context manifest (verify at implement time — may have drifted)
 - docker-compose.yml — extend, don't replace (bullet 01)
 - src/main/resources/application.yml — env var names the Dockerfile/compose must match
 - PRD.md §3.1 — sample payloads for the walkthrough
 - ARCHITECTURE.md §8 — known-limitations source
+
+## QA gate (2026-07-18)
+
+**Reviews:** Bugbot — 0 findings. Spec/compliance pass against Prompt 8 / this issue.
+
+**Suite:** `mvn -B verify` — Tests run: 67, Failures: 0, Errors: 0, BUILD SUCCESS.
+
+**Extra checks:** CI workflow (Temurin 21 + Maven cache → `mvn -B verify` on push/`main` + PR); compose `app` depends_on healthy postgres with `DB_*`; Dockerfile multi-stage + non-root + HEALTHCHECK `/actuator/health` + `wget`; README badge/quickstart/curl walkthrough/DO notes/limitations; `.dockerignore` covers `target`/`.git`/`.idea`. Manual `docker compose up --build` remains deferred (no Docker).
+
+### Fix tasks
+- [x] QA-01: No code defects in CI/Docker/README scope — nothing to change in workflow/Dockerfile/compose/README source beyond docs already shipped
