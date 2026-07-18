@@ -7,7 +7,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 02 | Domain + persistence | 01 | done | 6/6 green (5 repo + contextLoads) | da0a0d7 |
 | 03 | Flag CRUD API | 02 | done | 23/23 green; QA clean | 23efea6 |
 | 04 | Rule engine (core) | 02 | done | 13/13 green (`RuleEvaluatorTest`); suite 36/36; QA clean | 096d752 |
-| 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45 | 149e22e |
+| 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45; QA clean | 149e22e |
 | 06 | Two-layer cache + fallback | 05 | ready | – | – |
 | 07 | Percentage rollout (extension) | 06 | blocked | – | – |
 | 08 | CI, Docker, README | 03–07 | blocked | – | – |
@@ -103,3 +103,9 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
   - `shouldReturn400WhenAttributeValueIsList`
   - `shouldDefaultAttributesToEmptyMapWhenAbsent`
 - Notes: `EvaluationController` + `EvaluationService` (repo → `RuleEvaluator`, DEBUG log); `EvaluateRequest`/`EvaluateResponse`; `@ValidEvaluateAttributes` (scalars only, ≤50); no cache yet. Manual PRD §3.1 curl deferred (no Docker).
+
+### 2026-07-18 — 05 QA gate
+- Reviews: Bugbot — 0 findings; Prompt 5 / issue compliance spot-checked green
+- Suite: `mvn -B verify` BUILD SUCCESS (45/45)
+- Fixes: none required (QA-01 documented as no-op)
+- Result: clean — bullet 05 remains done; frontier still 06

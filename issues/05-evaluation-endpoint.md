@@ -28,3 +28,14 @@
 - src/main/java/com/ffaas/service/FlagService.java + api/GlobalExceptionHandler.java — existing patterns to follow (bullet 03)
 - src/main/java/com/ffaas/repository/FeatureFlagRepository.java
 - PRD.md §3.6 — request/response contract, reason table
+
+## QA gate (2026-07-18)
+
+**Reviews:** Bugbot — no findings. Spec/compliance pass against Prompt 5 / this issue.
+
+**Suite:** `mvn -B verify` — Tests run: 45, Failures: 0, Errors: 0, BUILD SUCCESS.
+
+**Extra checks:** Contract spot-check — `POST /{key}/evaluate`, scalar-only attributes with `attributes.*` field paths, repo → `RuleEvaluator` → response + DEBUG log, no cache wiring. Manual PRD §3.1 curl remains deferred (no Docker).
+
+### Fix tasks
+- [x] QA-01: No code defects in evaluation-endpoint scope — nothing to change in `src/`
