@@ -6,9 +6,10 @@ RUN mvn -B -q dependency:go-offline
 COPY src ./src
 RUN mvn -B -DskipTests package
 
-# Runtime stage
+# Runtime stage — DB via DB_URL / DB_USER / DB_PASSWORD (see application.yml)
 FROM eclipse-temurin:21-jre-alpine
-RUN addgroup -S ffaas && adduser -S ffaas -G ffaas
+RUN apk add --no-cache wget \
+    && addgroup -S ffaas && adduser -S ffaas -G ffaas
 USER ffaas
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar

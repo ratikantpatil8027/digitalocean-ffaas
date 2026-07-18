@@ -4,7 +4,7 @@
 
 **Blocked by:** 03, 04, 05, 06, 07 (final integration bullet — everything demoable must exist).
 
-**Status:** blocked
+**Status:** done
 
 **Note (hotfix 2026-07-18):** `Dockerfile` + `.dockerignore` were pulled forward early (DO App Platform has no Java buildpack). **Verify/extend** them here — do not recreate. Remaining: CI workflow, compose `app` service, README + DO deploy notes.
 
