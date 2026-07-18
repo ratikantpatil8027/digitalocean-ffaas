@@ -10,7 +10,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45; QA clean | 149e22e |
 | 06 | Two-layer cache + fallback | 05 | done | 14/14 green (10 orchestration + 3 L2 + 1 L1 TTL); suite 59/59; QA clean | 2cfa570 |
 | 07 | Percentage rollout (extension) | 06 | done | 8/8 green (2 bucketer + 5 evaluator + 1 L2); suite 67/67; QA clean | 96fe0ed |
-| 08 | CI, Docker, README | 03–07 | done | suite 67/67 green (`mvn -B verify`); no new unit tests | – |
+| 08 | CI, Docker, README | 03–07 | done | suite 67/67 green (`mvn -B verify`); no new unit tests | 1f897cc |
 
 ## Journey to destination
 [x] 01 scaffold → [x] 02 persistence → [x] 03 CRUD API → [x] 04 rule engine → [x] 05 evaluate endpoint → [x] 06 cache → [x] 07 rollout → [x] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
