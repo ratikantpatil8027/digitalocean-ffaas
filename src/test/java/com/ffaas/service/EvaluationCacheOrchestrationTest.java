@@ -244,6 +244,37 @@ class EvaluationCacheOrchestrationTest {
                 .isInstanceOf(DataAccessResourceFailureException.class);
     }
 
+    @Test
+    void shouldNotRepopulateCachesWhenEvictedDuringEvaluation() {
+        UUID ruleId = UUID.randomUUID();
+        FeatureFlag flag = flag(true, false, List.of(
+                rule(ruleId, 0, true, List.of(new Condition("tier", Operator.EQ, "premium")))
+        ));
+        when(repository.findByKey("premium-dashboard")).thenAnswer(inv -> {
+            // Concurrent update/delete eviction after DB read, before cache put.
+            flagCache.evict("premium-dashboard");
+            evaluationResultCache.evictAllForFlag("premium-dashboard");
+            return Optional.of(flag);
+        });
+
+        EvaluateResponse response = evaluationService.evaluate(
+                "premium-dashboard",
+                new EvaluateRequest("u1", Map.of("tier", "premium"))
+        );
+
+        assertThat(response.enabled()).isTrue();
+        assertThat(flagCache.get("premium-dashboard")).isEmpty();
+        assertThat(evaluationResultCache.get("premium-dashboard", "u1", Map.of("tier", "premium")))
+                .isEmpty();
+
+        when(repository.findByKey("premium-dashboard")).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> evaluationService.evaluate(
+                "premium-dashboard",
+                new EvaluateRequest("u1", Map.of("tier", "premium"))
+        ))
+                .isInstanceOf(FlagNotFoundException.class);
+    }
+
     private static FeatureFlag flag(boolean enabled, boolean defaultState, List<Rule> rules) {
         FeatureFlag flag = new FeatureFlag();
         flag.setKey("premium-dashboard");

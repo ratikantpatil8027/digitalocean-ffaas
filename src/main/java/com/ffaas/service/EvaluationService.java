@@ -46,7 +46,9 @@ public class EvaluationService {
             return cachedResult.get();
         }
 
-        FeatureFlag flag = loadFlag(key);
+        // Epoch captured before load so a concurrent update/delete eviction drops our cache puts.
+        long epoch = flagCache.epoch(key);
+        FeatureFlag flag = loadFlag(key, epoch);
         EvaluationOutcome outcome = ruleEvaluator.evaluate(flag, request.userId(), attributes);
 
         log.debug("evaluation flagKey={} userId={} reason={} matchedRuleId={}",
@@ -54,15 +56,18 @@ public class EvaluationService {
 
         EvaluateResponse response = new EvaluateResponse(
                 key, outcome.enabled(), outcome.reason(), outcome.matchedRuleId());
-        evaluationResultCache.put(key, request.userId(), attributes, response);
+        if (flagCache.epoch(key) == epoch) {
+            evaluationResultCache.put(key, request.userId(), attributes, response);
+        }
         return response;
     }
 
     /**
      * L1 → repository. On {@link DataAccessException}, serve from L1 if present (race / still-live entry).
      * Expired L1 entries are not recoverable — acceptable per ARCHITECTURE §4.
+     * L1 puts use {@code expectedEpoch} so write-through eviction cannot be undone by an in-flight load.
      */
-    private FeatureFlag loadFlag(String key) {
+    private FeatureFlag loadFlag(String key, long expectedEpoch) {
         Optional<FeatureFlag> cached = flagCache.get(key);
         if (cached.isPresent()) {
             return cached.get();
@@ -71,7 +76,7 @@ public class EvaluationService {
         try {
             FeatureFlag flag = repository.findByKey(key)
                     .orElseThrow(() -> new FlagNotFoundException(key));
-            flagCache.put(key, flag);
+            flagCache.putIfEpoch(key, flag, expectedEpoch);
             return flagCache.get(key).orElse(flag);
         } catch (DataAccessException ex) {
             // Expired entries are not recoverable from Caffeine; only still-live (e.g. concurrent put) help.

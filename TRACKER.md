@@ -8,7 +8,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 03 | Flag CRUD API | 02 | done | 23/23 green; QA clean | 23efea6 |
 | 04 | Rule engine (core) | 02 | done | 13/13 green (`RuleEvaluatorTest`); suite 36/36; QA clean | 096d752 |
 | 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45; QA clean | 149e22e |
-| 06 | Two-layer cache + fallback | 05 | done | 13/13 green (9 orchestration + 3 L2 + 1 L1 TTL); suite 58/58 | 2cfa570 |
+| 06 | Two-layer cache + fallback | 05 | done | 14/14 green (10 orchestration + 3 L2 + 1 L1 TTL); suite 59/59; QA clean | 2cfa570 |
 | 07 | Percentage rollout (extension) | 06 | ready | – | – |
 | 08 | CI, Docker, README | 03–07 | blocked | – | – |
 
@@ -126,3 +126,10 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
   - `shouldPurgeKeyIndexOnEvictAllForFlag`
   - (+ prior suite)
 - Notes: L1 `FlagCache` + L2 `EvaluationResultCache` (Caffeine; TTLs/sizes from `ffaas.cache.*`); evaluate L2→L1→repo; typed SHA-256 context keys; afterCommit eviction on update/delete; DB-down stale L1 + WARN else rethrow→503. Manual compose stop-postgres deferred (no Docker).
+
+### 2026-07-18 — 06 QA gate
+- Reviews: Bugbot — 1 finding (fixed)
+- Suite: `mvn -B verify` BUILD SUCCESS (59/59 post-fix)
+- Fixes:
+  - QA-01: per-key cache epoch bumped on L1 evict; in-flight evaluate uses `putIfEpoch` + gated L2 put so eviction cannot be undone (`FlagCache`, `EvaluationService`, `shouldNotRepopulateCachesWhenEvictedDuringEvaluation`)
+- Result: clean — bullet 06 remains done; frontier still 07

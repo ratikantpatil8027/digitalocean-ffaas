@@ -35,3 +35,14 @@
 - src/main/java/com/ffaas/service/FlagService.java — eviction hooks on update/delete (bullet 03)
 - src/main/java/com/ffaas/config/ — @ConfigurationProperties home
 - ARCHITECTURE.md §4 — invalidation matrix + correctness invariants (authoritative)
+
+## QA gate (2026-07-18)
+
+**Reviews:** Bugbot — 1 finding (high), fixed.
+
+**Suite:** `mvn -B verify` — Tests run: 59, Failures: 0, Errors: 0, BUILD SUCCESS.
+
+**Extra checks:** Spec spot-check — L2→L1→repo order, typed context hash, afterCommit eviction, DB-down WARN/`503`, TTLs from `ffaas.cache.*`. Manual compose stop-postgres remains deferred (no Docker).
+
+### Fix tasks
+- [x] QA-01: In-flight evaluate can re-populate L1/L2 after update/delete eviction — per-key epoch on `FlagCache.evict`; `putIfEpoch` + L2 put gated on unchanged epoch (`FlagCache`, `EvaluationService`, `shouldNotRepopulateCachesWhenEvictedDuringEvaluation`)
