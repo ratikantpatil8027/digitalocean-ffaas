@@ -169,3 +169,6 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 - Cause: Spring Boot 3.2+ `NoResourceFoundException` fell through to catch-all → 500 INTERNAL_ERROR
 - Fix: `GlobalExceptionHandler` maps `NoResourceFoundException` / `NoHandlerFoundException` → 404 `NOT_FOUND` (`No resource at <path>`)
 - Tests: `shouldReturn404EnvelopeForUnmappedPath`; suite 68/68 green
+
+### 2026-07-18 — DOCS: README enriched (live demo, API reference, cache/storage internals, code map, config, DO deploy)
+- Notes: Live demo curls verified against https://plankton-app-mjcf9.ondigitalocean.app; optional `springdoc-openapi-starter-webmvc-ui` 2.8.14 (`/swagger-ui.html`); suite remains green (`mvn -B verify`)
