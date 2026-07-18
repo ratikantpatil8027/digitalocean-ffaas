@@ -4,9 +4,20 @@
 
 REST API that stores feature flags and evaluates them against per-request user context (rules, optional percentage rollout, two-layer in-memory cache). Stack: Java 21, Spring Boot 3, Maven, PostgreSQL, Caffeine.
 
-Contract: [PRD.md](./PRD.md) · Design: [ARCHITECTURE.md](./ARCHITECTURE.md)
+Contract: [PRD.md](./PRD.md) · Design: [ARCHITECTURE.md](./ARCHITECTURE.md) · Decisions: [DECISIONS.md](./DECISIONS.md) · Full debrief: [INTERVIEW_DEBRIEF.md](./INTERVIEW_DEBRIEF.md)
 
 Interactive OpenAPI UI (when running locally or after deploy): [/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+## How it was built
+
+One time-boxed day. Docs-as-interface: architecture session locked contracts; coding sessions executed one vertical slice at a time with TDD.
+
+1. **Grill & lock** — stack, storage, rule/cache/rollout semantics, non-goals (no auth, no multi-instance coherence, no audit) → [PRD.md](./PRD.md) + [DECISIONS.md](./DECISIONS.md).
+2. **Design** — `api → service → (engine, cache, repository) → domain`; pure `RuleEvaluator`; L1 defs + L2 typed-context results; write-through eviction; pin to **1 instance** for instant invalidation → [ARCHITECTURE.md](./ARCHITECTURE.md).
+3. **Slice the work** — 8 tracer bullets in [TRACKER.md](./TRACKER.md) / `issues/`, acceptance criteria as literal test names (03 CRUD ∥ 04 engine after domain).
+4. **Build loop** — per bullet: reload docs → red tests → green → review → QA → commit → clear → next.
+5. **Ship the path** — scaffold → persistence → CRUD → engine → evaluate → cache → rollout → CI/Docker/docs. Deploy early (after CRUD); Dockerfile pulled forward when DO had no Java buildpack; DB via bindable `DB_*`.
+6. **Prove it** — unit tests per layer; CI `mvn verify`; live curls after each milestone (cache flip with no TTL wait; `/health` 500 → 404 hotfix).
 
 ## Live demo
 
