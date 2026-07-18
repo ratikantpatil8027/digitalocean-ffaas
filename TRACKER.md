@@ -6,7 +6,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 01 | Project scaffold | — | done | 1/1 green (`contextLoads`); QA clean | b7f9342 |
 | 02 | Domain + persistence | 01 | done | 6/6 green (5 repo + contextLoads) | da0a0d7 |
 | 03 | Flag CRUD API | 02 | done | 23/23 green; QA clean | 23efea6 |
-| 04 | Rule engine (core) | 02 | done | 11/11 green (`RuleEvaluatorTest`); suite 34/34 | pending |
+| 04 | Rule engine (core) | 02 | done | 11/11 green (`RuleEvaluatorTest`); suite 34/34 | 096d752 |
 | 05 | Evaluation endpoint | 03, 04 | ready | – | – |
 | 06 | Two-layer cache + fallback | 05 | blocked | – | – |
 | 07 | Percentage rollout (extension) | 06 | blocked | – | – |
