@@ -17,6 +17,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -101,6 +103,16 @@ public class GlobalExceptionHandler {
         log.error("Database unavailable", ex);
         return build(HttpStatus.SERVICE_UNAVAILABLE, "SERVICE_UNAVAILABLE",
                 "Service temporarily unavailable", List.of(), request.getRequestURI());
+    }
+
+    @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})
+    public ResponseEntity<ErrorResponse> handleNoResource(
+            Exception ex,
+            HttpServletRequest request
+    ) {
+        String path = request.getRequestURI();
+        return build(HttpStatus.NOT_FOUND, "NOT_FOUND", "No resource at " + path,
+                List.of(), path);
     }
 
     @ExceptionHandler(Exception.class)

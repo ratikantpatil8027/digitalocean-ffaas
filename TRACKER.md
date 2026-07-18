@@ -164,3 +164,8 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 - Suite: `mvn -B verify` BUILD SUCCESS (67/67)
 - Fixes: none required (QA-01 documented as no-op)
 - Result: clean — bullet 08 remains done; journey complete 🏁
+
+### 2026-07-18 — HOTFIX: unmapped paths now 404 instead of 500
+- Cause: Spring Boot 3.2+ `NoResourceFoundException` fell through to catch-all → 500 INTERNAL_ERROR
+- Fix: `GlobalExceptionHandler` maps `NoResourceFoundException` / `NoHandlerFoundException` → 404 `NOT_FOUND` (`No resource at <path>`)
+- Tests: `shouldReturn404EnvelopeForUnmappedPath`; suite 68/68 green
