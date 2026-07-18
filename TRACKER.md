@@ -4,16 +4,16 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | NN | Bullet | Blocked by | Status | Tests | Commit |
 |----|--------|-----------|--------|-------|--------|
 | 01 | Project scaffold | — | done | 1/1 green (`contextLoads`); QA clean | b7f9342 |
-| 02 | Domain + persistence | 01 | ready | – | – |
-| 03 | Flag CRUD API | 02 | blocked | – | – |
-| 04 | Rule engine (core) | 02 | blocked | – | – |
+| 02 | Domain + persistence | 01 | done | 6/6 green (5 repo + contextLoads) | da0a0d7 |
+| 03 | Flag CRUD API | 02 | ready | – | – |
+| 04 | Rule engine (core) | 02 | ready | – | – |
 | 05 | Evaluation endpoint | 03, 04 | blocked | – | – |
 | 06 | Two-layer cache + fallback | 05 | blocked | – | – |
 | 07 | Percentage rollout (extension) | 06 | blocked | – | – |
 | 08 | CI, Docker, README | 03–07 | blocked | – | – |
 
 ## Journey to destination
-[x] 01 scaffold → [ ] 02 persistence → [ ] 03 CRUD API → [ ] 04 rule engine → [ ] 05 evaluate endpoint → [ ] 06 cache → [ ] 07 rollout → [ ] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
+[x] 01 scaffold → [x] 02 persistence → [ ] 03 CRUD API → [ ] 04 rule engine → [ ] 05 evaluate endpoint → [ ] 06 cache → [ ] 07 rollout → [ ] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
 
 ## Log
 ### 2026-07-18 — 01 Project scaffold
@@ -26,3 +26,14 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 - Suite: `mvn -B verify` BUILD SUCCESS (1/1)
 - Fixes: QA-01 TRACKER commit SHA corrected to `b7f9342`; no source fixes required
 - Result: clean — bullet 01 remains done; frontier still 02
+
+### 2026-07-18 — 02 Domain + persistence
+- Status: done
+- Tests: `mvn -B verify` — Tests run: 6, Failures: 0, Errors: 0
+  - `shouldSaveAndReloadFlagWithRulesOrderedByPriority`
+  - `shouldRoundTripConditionsThroughJsonConverter`
+  - `shouldRejectDuplicateFlagKey`
+  - `shouldCascadeDeleteRulesWhenFlagDeleted`
+  - `shouldRejectDuplicatePriorityWithinFlag`
+  - `contextLoads`
+- Notes: Flyway V1 (quoted `"key"`, `TIMESTAMP WITH TIME ZONE`, `JSON` for H2 dual-run; Postgres-compatible). Entities FeatureFlag/Rule/Condition/Operator + ConditionListConverter; FeatureFlagRepository. Manual Postgres migrate deferred (no Docker).

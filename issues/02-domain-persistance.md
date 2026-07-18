@@ -4,7 +4,7 @@
 
 **Blocked by:** 01 — Project scaffold.
 
-**Status:** blocked
+**Status:** done
 
 ## Spec (from PROMPTS.md §2, ARCHITECTURE.md §5)
 - Flyway `V1__init.sql`: `feature_flags` (id UUID PK, key varchar(64) unique, name varchar(100), description varchar(500), enabled, default_state, created_at/updated_at timestamptz) + `flag_rules` (id UUID PK, flag_id FK cascade, priority ≥ 0, serve, rollout_percentage null check 0–100, conditions JSONB, unique(flag_id, priority)); index on flag_id. Postgres-first; H2 JSON via PostgreSQL mode acceptable in tests.
@@ -12,14 +12,15 @@
 - `FeatureFlagRepository`: `findByKey`, `existsByKey`, `deleteByKey`.
 
 ## Acceptance criteria (as test names)
-- [ ] `shouldSaveAndReloadFlagWithRulesOrderedByPriority`
-- [ ] `shouldRoundTripConditionsThroughJsonConverter`
-- [ ] `shouldRejectDuplicateFlagKey`
-- [ ] `shouldCascadeDeleteRulesWhenFlagDeleted`
-- [ ] `shouldRejectDuplicatePriorityWithinFlag`
+- [x] `shouldSaveAndReloadFlagWithRulesOrderedByPriority`
+- [x] `shouldRoundTripConditionsThroughJsonConverter`
+- [x] `shouldRejectDuplicateFlagKey`
+- [x] `shouldCascadeDeleteRulesWhenFlagDeleted`
+- [x] `shouldRejectDuplicatePriorityWithinFlag`
 
 ## Manual verification
-- [ ] Migration applies cleanly against real Postgres (`docker compose up -d` + app start)
+- [ ] Migration applies cleanly against real Postgres (`docker compose up -d` + app start) (Docker unavailable in agent environment)
+- [x] `mvn -B verify` green on H2
 
 ## Context manifest (verify at implement time — may have drifted)
 - src/main/resources/application*.yml — Flyway/H2 config from bullet 01
