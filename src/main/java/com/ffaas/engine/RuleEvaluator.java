@@ -62,10 +62,10 @@ public class RuleEvaluator {
         Object actual = context.get(condition.attribute());
         Object expected = condition.value();
         return switch (condition.operator()) {
-            case EQ -> valuesEqual(actual, expected);
-            case NEQ -> !valuesEqual(actual, expected);
+            case EQ -> expected != null && valuesEqual(actual, expected);
+            case NEQ -> expected != null && !valuesEqual(actual, expected);
             case IN -> isMember(actual, expected);
-            case NOT_IN -> !isMember(actual, expected);
+            case NOT_IN -> expected instanceof Collection<?> && !isMember(actual, expected);
             case GT -> isGreater(actual, expected);
             case LT -> isLess(actual, expected);
         };

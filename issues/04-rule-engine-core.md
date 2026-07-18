@@ -32,3 +32,15 @@
 - src/main/java/com/ffaas/domain/ — FeatureFlag, Rule, Condition, Operator (inputs to the engine)
 - PRD.md §4.1–4.2 — authoritative matching semantics
 - ARCHITECTURE.md §3 — engine rationale and constraints
+
+## QA gate (2026-07-18)
+
+**Reviews:** Bugbot — 2 findings (both fixed). Spec/compliance against Prompt 4 / this issue.
+
+**Suite (pre-fix):** `mvn -B verify` — Tests run: 34, Failures: 0, Errors: 0, BUILD SUCCESS. Engine Spring/JPA/Caffeine import check clean.
+
+**Suite (post-fix):** `mvn -B verify` — Tests run: 36, Failures: 0, Errors: 0, BUILD SUCCESS.
+
+### Fix tasks
+- [x] QA-01: `NOT_IN` with non-Collection (or null) condition value matched everyone with the attribute (`!isMember` of malformed value) → require `Collection` for `NOT_IN`; regression `shouldNotMatchNotInWhenConditionValueIsNotACollection`
+- [x] QA-02: `NEQ` with null condition `value` always matched any present attribute → null expected fails EQ/NEQ; regression `shouldNotMatchNeqWhenConditionValueIsNull`

@@ -6,7 +6,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 01 | Project scaffold | — | done | 1/1 green (`contextLoads`); QA clean | b7f9342 |
 | 02 | Domain + persistence | 01 | done | 6/6 green (5 repo + contextLoads) | da0a0d7 |
 | 03 | Flag CRUD API | 02 | done | 23/23 green; QA clean | 23efea6 |
-| 04 | Rule engine (core) | 02 | done | 11/11 green (`RuleEvaluatorTest`); suite 34/34 | 096d752 |
+| 04 | Rule engine (core) | 02 | done | 13/13 green (`RuleEvaluatorTest`); suite 36/36; QA clean | 096d752 |
 | 05 | Evaluation endpoint | 03, 04 | ready | – | – |
 | 06 | Two-layer cache + fallback | 05 | blocked | – | – |
 | 07 | Percentage rollout (extension) | 06 | blocked | – | – |
@@ -78,3 +78,16 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
   - `shouldExposeUserIdAsContextAttribute`
   - (+ prior CRUD/service/repo + contextLoads)
 - Notes: Pure `com.ffaas.engine` (`RuleEvaluator`, `EvaluationOutcome`, `Reason`); zero Spring imports; rollout ignored. Manual `grep` for `org.springframework` under engine/ empty.
+
+### 2026-07-18 — Hotfix: Dockerfile pulled forward from 08
+- Reason: DigitalOcean App Platform has no Java buildpack — need a multi-stage `Dockerfile` (+ `.dockerignore`) before bullet 08.
+- Scope: Placeholder empty files from `a06d45c` filled with multi-stage Maven 21 → JRE alpine image (non-root, HEALTHCHECK `/actuator/health`). Compose `app` service, CI, and README remain bullet 08.
+- Bullet 08: **verify/extend** existing `Dockerfile` / `.dockerignore` — do not recreate from scratch.
+
+### 2026-07-18 — 04 QA gate
+- Reviews: Bugbot — 2 findings (both fixed)
+- Suite: `mvn -B verify` BUILD SUCCESS (36/36 post-fix)
+- Fixes:
+  - QA-01: malformed `NOT_IN` value (non-Collection) must not match — require Collection before negating membership (`RuleEvaluator` + `shouldNotMatchNotInWhenConditionValueIsNotACollection`)
+  - QA-02: null condition value must not satisfy `NEQ`/`EQ` (`RuleEvaluator` + `shouldNotMatchNeqWhenConditionValueIsNull`)
+- Result: clean — bullet 04 remains done; frontier still 05

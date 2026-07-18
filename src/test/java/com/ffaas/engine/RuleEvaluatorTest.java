@@ -192,6 +192,34 @@ class RuleEvaluatorTest {
         assertThat(paramWins.matchedRuleId()).isEqualTo(ruleId);
     }
 
+    @Test
+    void shouldNotMatchNotInWhenConditionValueIsNotACollection() {
+        FeatureFlag flag = flag(true, false, List.of(
+                rule(UUID.randomUUID(), 0, true, List.of(
+                        new Condition("region", Operator.NOT_IN, "us-east")))
+        ));
+
+        EvaluationOutcome outcome = evaluator.evaluate(flag, "u1", Map.of("region", "eu-west"));
+
+        assertThat(outcome.reason()).isEqualTo(Reason.DEFAULT);
+        assertThat(outcome.enabled()).isFalse();
+        assertThat(outcome.matchedRuleId()).isNull();
+    }
+
+    @Test
+    void shouldNotMatchNeqWhenConditionValueIsNull() {
+        FeatureFlag flag = flag(true, false, List.of(
+                rule(UUID.randomUUID(), 0, true, List.of(
+                        new Condition("tier", Operator.NEQ, null)))
+        ));
+
+        EvaluationOutcome outcome = evaluator.evaluate(flag, "u1", Map.of("tier", "premium"));
+
+        assertThat(outcome.reason()).isEqualTo(Reason.DEFAULT);
+        assertThat(outcome.enabled()).isFalse();
+        assertThat(outcome.matchedRuleId()).isNull();
+    }
+
     private static FeatureFlag flag(boolean enabled, boolean defaultState, List<Rule> rules) {
         FeatureFlag flag = new FeatureFlag();
         flag.setKey("test-flag");
