@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — Domain + persistence. (Does NOT need 03 — can run in parallel with the CRUD API.)
 
-**Status:** blocked
+**Status:** done
 
 ## Spec (from PROMPTS.md §4, PRD.md §4.1–4.2)
 - `com.ffaas.engine` — HARD CONSTRAINT: zero Spring/JPA/cache imports.
@@ -13,20 +13,20 @@
 - Matching: missing attribute ⇒ false; EQ/NEQ type-aware with numeric coercion (34 == 34.0); IN/NOT_IN membership with same numeric equality; GT/LT numbers only (non-number ⇒ false), compared as double. Never throws on bad data.
 
 ## Acceptance criteria (as test names)
-- [ ] `shouldReturnFlagDisabledWhenGlobalToggleOffEvenIfRulesMatch`
-- [ ] `shouldMatchEqWithNumericCoercionAcrossBoxing`
-- [ ] `shouldNotMatchEqOnTypeMismatch`
-- [ ] `shouldMatchInWhenValuePresentInList`
-- [ ] `shouldTreatMissingAttributeAsNonMatchForAllOperators`
-- [ ] `shouldReturnFalseForGtWhenContextValueNotNumeric`
-- [ ] `shouldFailRuleWhenAnySingleConditionFails`
-- [ ] `shouldPickLowestPriorityRuleWhenMultipleMatch`
-- [ ] `shouldReturnDefaultStateWhenNoRuleMatches`
-- [ ] `shouldReturnDefaultWithEmptyRules`
-- [ ] `shouldExposeUserIdAsContextAttribute`
+- [x] `shouldReturnFlagDisabledWhenGlobalToggleOffEvenIfRulesMatch`
+- [x] `shouldMatchEqWithNumericCoercionAcrossBoxing`
+- [x] `shouldNotMatchEqOnTypeMismatch`
+- [x] `shouldMatchInWhenValuePresentInList`
+- [x] `shouldTreatMissingAttributeAsNonMatchForAllOperators`
+- [x] `shouldReturnFalseForGtWhenContextValueNotNumeric`
+- [x] `shouldFailRuleWhenAnySingleConditionFails`
+- [x] `shouldPickLowestPriorityRuleWhenMultipleMatch`
+- [x] `shouldReturnDefaultStateWhenNoRuleMatches`
+- [x] `shouldReturnDefaultWithEmptyRules`
+- [x] `shouldExposeUserIdAsContextAttribute`
 
 ## Manual verification
-- [ ] `grep -r "org.springframework" src/main/java/com/ffaas/engine/` → empty
+- [x] `grep -r "org.springframework" src/main/java/com/ffaas/engine/` → empty
 
 ## Context manifest (verify at implement time — may have drifted)
 - src/main/java/com/ffaas/domain/ — FeatureFlag, Rule, Condition, Operator (inputs to the engine)
