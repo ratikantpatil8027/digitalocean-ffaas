@@ -4,7 +4,7 @@
 
 **Blocked by:** 03 — Flag CRUD API, 04 — Rule engine (core).
 
-**Status:** blocked
+**Status:** done
 
 ## Spec (from PROMPTS.md §5, PRD.md §3.6)
 - `EvaluateRequest(userId @NotBlank ≤128, attributes optional Map<String,Object> default empty)`; custom validation: attribute values scalar only (String/Number/Boolean; reject null/nested/list), ≤ 50 entries, field paths like `attributes.someKey`.
@@ -12,13 +12,13 @@
 - `EvaluationService`: repository `findByKey` (miss → FlagNotFoundException) → `RuleEvaluator` → response. One DEBUG log line per evaluation (flagKey, userId, reason, matchedRuleId).
 
 ## Acceptance criteria (as test names)
-- [ ] `shouldReturnRuleMatchWithMatchedRuleId`
-- [ ] `shouldReturnDefaultWhenNoRuleMatches`
-- [ ] `shouldReturnFlagDisabledWhenToggleOff`
-- [ ] `shouldReturn404ForUnknownFlag`
-- [ ] `shouldReturn400WhenUserIdMissing`
-- [ ] `shouldReturn400WhenAttributeValueIsList`
-- [ ] `shouldDefaultAttributesToEmptyMapWhenAbsent`
+- [x] `shouldReturnRuleMatchWithMatchedRuleId`
+- [x] `shouldReturnDefaultWhenNoRuleMatches`
+- [x] `shouldReturnFlagDisabledWhenToggleOff`
+- [x] `shouldReturn404ForUnknownFlag`
+- [x] `shouldReturn400WhenUserIdMissing`
+- [x] `shouldReturn400WhenAttributeValueIsList`
+- [x] `shouldDefaultAttributesToEmptyMapWhenAbsent`
 
 ## Manual verification
 - [ ] PRD §3.1 flag: premium/us-east context → RULE_MATCH; free tier → DEFAULT; PUT enabled=false → FLAG_DISABLED

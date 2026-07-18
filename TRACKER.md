@@ -7,13 +7,13 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 02 | Domain + persistence | 01 | done | 6/6 green (5 repo + contextLoads) | da0a0d7 |
 | 03 | Flag CRUD API | 02 | done | 23/23 green; QA clean | 23efea6 |
 | 04 | Rule engine (core) | 02 | done | 13/13 green (`RuleEvaluatorTest`); suite 36/36; QA clean | 096d752 |
-| 05 | Evaluation endpoint | 03, 04 | ready | – | – |
-| 06 | Two-layer cache + fallback | 05 | blocked | – | – |
+| 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45 | – |
+| 06 | Two-layer cache + fallback | 05 | ready | – | – |
 | 07 | Percentage rollout (extension) | 06 | blocked | – | – |
 | 08 | CI, Docker, README | 03–07 | blocked | – | – |
 
 ## Journey to destination
-[x] 01 scaffold → [x] 02 persistence → [x] 03 CRUD API → [x] 04 rule engine → [ ] 05 evaluate endpoint → [ ] 06 cache → [ ] 07 rollout → [ ] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
+[x] 01 scaffold → [x] 02 persistence → [x] 03 CRUD API → [x] 04 rule engine → [x] 05 evaluate endpoint → [ ] 06 cache → [ ] 07 rollout → [ ] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
 
 ## Log
 ### 2026-07-18 — 01 Project scaffold
@@ -91,3 +91,15 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
   - QA-01: malformed `NOT_IN` value (non-Collection) must not match — require Collection before negating membership (`RuleEvaluator` + `shouldNotMatchNotInWhenConditionValueIsNotACollection`)
   - QA-02: null condition value must not satisfy `NEQ`/`EQ` (`RuleEvaluator` + `shouldNotMatchNeqWhenConditionValueIsNull`)
 - Result: clean — bullet 04 remains done; frontier still 05
+
+### 2026-07-18 — 05 Evaluation endpoint
+- Status: done
+- Tests: `mvn -B verify` — Tests run: 45, Failures: 0, Errors: 0
+  - `shouldReturnRuleMatchWithMatchedRuleId` (service + controller)
+  - `shouldReturnDefaultWhenNoRuleMatches`
+  - `shouldReturnFlagDisabledWhenToggleOff`
+  - `shouldReturn404ForUnknownFlag` (service + controller)
+  - `shouldReturn400WhenUserIdMissing`
+  - `shouldReturn400WhenAttributeValueIsList`
+  - `shouldDefaultAttributesToEmptyMapWhenAbsent`
+- Notes: `EvaluationController` + `EvaluationService` (repo → `RuleEvaluator`, DEBUG log); `EvaluateRequest`/`EvaluateResponse`; `@ValidEvaluateAttributes` (scalars only, ≤50); no cache yet. Manual PRD §3.1 curl deferred (no Docker).
