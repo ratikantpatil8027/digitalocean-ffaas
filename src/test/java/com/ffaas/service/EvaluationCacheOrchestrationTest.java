@@ -11,6 +11,7 @@ import com.ffaas.domain.FeatureFlag;
 import com.ffaas.domain.Operator;
 import com.ffaas.domain.Rule;
 import com.ffaas.engine.Reason;
+import com.ffaas.engine.RolloutBucketer;
 import com.ffaas.engine.RuleEvaluator;
 import com.ffaas.repository.FeatureFlagRepository;
 import jakarta.persistence.EntityManager;
@@ -245,6 +246,51 @@ class EvaluationCacheOrchestrationTest {
     }
 
     @Test
+    void shouldNotLeakExcludedResultToDifferentUserViaL2Cache() {
+        UUID ruleId = UUID.randomUUID();
+        FeatureFlag flag = flag(true, false, List.of(
+                ruleWithRollout(ruleId, 0, true, 30, List.of(new Condition("tier", Operator.EQ, "premium")))
+        ));
+        when(repository.findByKey("premium-dashboard")).thenReturn(Optional.of(flag));
+
+        String excludedUser = null;
+        String includedUser = null;
+        RolloutBucketer bucketer = new RolloutBucketer();
+        for (int i = 0; i < 10_000; i++) {
+            String userId = "user-" + i;
+            int bucket = bucketer.bucket("premium-dashboard", userId);
+            if (excludedUser == null && bucket >= 30) {
+                excludedUser = userId;
+            }
+            if (includedUser == null && bucket < 30) {
+                includedUser = userId;
+            }
+            if (excludedUser != null && includedUser != null) {
+                break;
+            }
+        }
+        assertThat(excludedUser).isNotNull();
+        assertThat(includedUser).isNotNull();
+
+        EvaluateResponse excluded = evaluationService.evaluate(
+                "premium-dashboard", new EvaluateRequest(excludedUser, Map.of("tier", "premium")));
+        assertThat(excluded.reason()).isEqualTo(Reason.ROLLOUT_EXCLUDED);
+        assertThat(excluded.enabled()).isFalse();
+        assertThat(excluded.matchedRuleId()).isEqualTo(ruleId);
+
+        EvaluateResponse included = evaluationService.evaluate(
+                "premium-dashboard", new EvaluateRequest(includedUser, Map.of("tier", "premium")));
+        assertThat(included.reason()).isEqualTo(Reason.RULE_MATCH);
+        assertThat(included.enabled()).isTrue();
+        assertThat(included.matchedRuleId()).isEqualTo(ruleId);
+
+        assertThat(evaluationResultCache.get("premium-dashboard", excludedUser, Map.of("tier", "premium")))
+                .contains(excluded);
+        assertThat(evaluationResultCache.get("premium-dashboard", includedUser, Map.of("tier", "premium")))
+                .contains(included);
+    }
+
+    @Test
     void shouldNotRepopulateCachesWhenEvictedDuringEvaluation() {
         UUID ruleId = UUID.randomUUID();
         FeatureFlag flag = flag(true, false, List.of(
@@ -288,10 +334,17 @@ class EvaluationCacheOrchestrationTest {
     }
 
     private static Rule rule(UUID id, int priority, boolean serve, List<Condition> conditions) {
+        return ruleWithRollout(id, priority, serve, null, conditions);
+    }
+
+    private static Rule ruleWithRollout(
+            UUID id, int priority, boolean serve, Integer rolloutPercentage, List<Condition> conditions
+    ) {
         Rule rule = new Rule();
         setId(rule, id);
         rule.setPriority(priority);
         rule.setServe(serve);
+        rule.setRolloutPercentage(rolloutPercentage);
         rule.setConditions(conditions);
         return rule;
     }

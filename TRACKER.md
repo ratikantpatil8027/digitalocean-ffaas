@@ -9,11 +9,11 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 04 | Rule engine (core) | 02 | done | 13/13 green (`RuleEvaluatorTest`); suite 36/36; QA clean | 096d752 |
 | 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45; QA clean | 149e22e |
 | 06 | Two-layer cache + fallback | 05 | done | 14/14 green (10 orchestration + 3 L2 + 1 L1 TTL); suite 59/59; QA clean | 2cfa570 |
-| 07 | Percentage rollout (extension) | 06 | ready | – | – |
-| 08 | CI, Docker, README | 03–07 | blocked | – | – |
+| 07 | Percentage rollout (extension) | 06 | done | 8/8 green (2 bucketer + 5 evaluator + 1 L2); suite 67/67 | – |
+| 08 | CI, Docker, README | 03–07 | ready | – | – |
 
 ## Journey to destination
-[x] 01 scaffold → [x] 02 persistence → [x] 03 CRUD API → [x] 04 rule engine → [x] 05 evaluate endpoint → [x] 06 cache → [ ] 07 rollout → [ ] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
+[x] 01 scaffold → [x] 02 persistence → [x] 03 CRUD API → [x] 04 rule engine → [x] 05 evaluate endpoint → [x] 06 cache → [x] 07 rollout → [ ] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
 
 ## Log
 ### 2026-07-18 — 01 Project scaffold
@@ -133,3 +133,17 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 - Fixes:
   - QA-01: per-key cache epoch bumped on L1 evict; in-flight evaluate uses `putIfEpoch` + gated L2 put so eviction cannot be undone (`FlagCache`, `EvaluationService`, `shouldNotRepopulateCachesWhenEvictedDuringEvaluation`)
 - Result: clean — bullet 06 remains done; frontier still 07
+
+### 2026-07-18 — 07 Percentage rollout (extension)
+- Status: done
+- Tests: `mvn -B verify` — Tests run: 67, Failures: 0, Errors: 0
+  - `shouldReturnSameBucketForSameFlagAndUserRepeatedly`
+  - `shouldReturnDifferentBucketsAcrossFlagsForSameUser`
+  - `shouldAlwaysExcludeAtZeroPercent`
+  - `shouldAlwaysIncludeAtHundredPercent`
+  - `shouldBehaveIdenticallyToCoreWhenPercentageNull`
+  - `shouldIncludeRoughly30PercentOf10000Users`
+  - `shouldNotFallThroughToLowerPriorityRuleWhenExcluded`
+  - `shouldNotLeakExcludedResultToDifferentUserViaL2Cache`
+  - (+ prior suite unmodified)
+- Notes: `RolloutBucketer` via Guava `murmur3_32_fixed` (33.6.0-jre); `Reason.ROLLOUT_EXCLUDED`; null percentage ≡ core path; no fall-through; L2 unchanged. Manual compose rollout demo deferred (no Docker).

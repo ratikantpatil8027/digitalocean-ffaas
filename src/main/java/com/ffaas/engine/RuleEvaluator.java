@@ -2,7 +2,6 @@ package com.ffaas.engine;
 
 import com.ffaas.domain.Condition;
 import com.ffaas.domain.FeatureFlag;
-import com.ffaas.domain.Operator;
 import com.ffaas.domain.Rule;
 
 import java.util.ArrayList;
@@ -13,9 +12,19 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Pure, framework-free flag evaluation. Ignores {@link Rule#getRolloutPercentage()} (bullet 07).
+ * Pure, framework-free flag evaluation with optional per-rule percentage rollout.
  */
 public class RuleEvaluator {
+
+    private final RolloutBucketer rolloutBucketer;
+
+    public RuleEvaluator() {
+        this(new RolloutBucketer());
+    }
+
+    public RuleEvaluator(RolloutBucketer rolloutBucketer) {
+        this.rolloutBucketer = rolloutBucketer;
+    }
 
     public EvaluationOutcome evaluate(FeatureFlag flag, String userId, Map<String, Object> attributes) {
         Map<String, Object> context = new HashMap<>();
@@ -33,6 +42,14 @@ public class RuleEvaluator {
 
         for (Rule rule : ordered) {
             if (matchesAll(rule.getConditions(), context)) {
+                Integer percentage = rule.getRolloutPercentage();
+                if (percentage != null) {
+                    int bucket = rolloutBucketer.bucket(flag.getKey(), userId);
+                    if (bucket >= percentage) {
+                        return new EvaluationOutcome(
+                                flag.isDefaultState(), Reason.ROLLOUT_EXCLUDED, rule.getId());
+                    }
+                }
                 return new EvaluationOutcome(rule.isServe(), Reason.RULE_MATCH, rule.getId());
             }
         }

@@ -4,7 +4,7 @@
 
 **Blocked by:** 06 — Two-layer cache.
 
-**Status:** blocked
+**Status:** done
 
 ## Spec (from PROMPTS.md §7, PRD.md §4.3)
 - `RolloutBucketer` (pure, in engine): `bucket(flagKey, userId) = abs(murmur3_32(flagKey + ":" + userId)) % 100` — Guava `Hashing.murmur3_32_fixed()` or documented inline impl; handle `Integer.MIN_VALUE`; stable across JVM restarts.
@@ -13,18 +13,18 @@
 - L2 cache needs no change (flagKey+userId already in the key) — prove with a test.
 
 ## Acceptance criteria (as test names)
-- [ ] `shouldReturnSameBucketForSameFlagAndUserRepeatedly`
-- [ ] `shouldReturnDifferentBucketsAcrossFlagsForSameUser`
-- [ ] `shouldAlwaysExcludeAtZeroPercent`
-- [ ] `shouldAlwaysIncludeAtHundredPercent`
-- [ ] `shouldBehaveIdenticallyToCoreWhenPercentageNull`
-- [ ] `shouldIncludeRoughly30PercentOf10000Users` (assert 27–33%)
-- [ ] `shouldNotFallThroughToLowerPriorityRuleWhenExcluded`
-- [ ] `shouldNotLeakExcludedResultToDifferentUserViaL2Cache`
+- [x] `shouldReturnSameBucketForSameFlagAndUserRepeatedly`
+- [x] `shouldReturnDifferentBucketsAcrossFlagsForSameUser`
+- [x] `shouldAlwaysExcludeAtZeroPercent`
+- [x] `shouldAlwaysIncludeAtHundredPercent`
+- [x] `shouldBehaveIdenticallyToCoreWhenPercentageNull`
+- [x] `shouldIncludeRoughly30PercentOf10000Users` (assert 27–33%)
+- [x] `shouldNotFallThroughToLowerPriorityRuleWhenExcluded`
+- [x] `shouldNotLeakExcludedResultToDifferentUserViaL2Cache`
 
 ## Manual verification
 - [ ] rule with rolloutPercentage=30: ~10 distinct userIds → mix of RULE_MATCH / ROLLOUT_EXCLUDED; repeats are stable
-- [ ] full pre-existing test suite passes UNMODIFIED
+- [x] full pre-existing test suite passes UNMODIFIED
 
 ## Context manifest (verify at implement time — may have drifted)
 - src/main/java/com/ffaas/engine/RuleEvaluator.java + EvaluationOutcome/Reason — extension point (bullet 04)
