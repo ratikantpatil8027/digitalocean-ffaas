@@ -8,12 +8,12 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 | 03 | Flag CRUD API | 02 | done | 23/23 green; QA clean | 23efea6 |
 | 04 | Rule engine (core) | 02 | done | 13/13 green (`RuleEvaluatorTest`); suite 36/36; QA clean | 096d752 |
 | 05 | Evaluation endpoint | 03, 04 | done | 9/9 green (4 service + 5 controller); suite 45/45; QA clean | 149e22e |
-| 06 | Two-layer cache + fallback | 05 | ready | – | – |
-| 07 | Percentage rollout (extension) | 06 | blocked | – | – |
+| 06 | Two-layer cache + fallback | 05 | done | 13/13 green (9 orchestration + 3 L2 + 1 L1 TTL); suite 58/58 | – |
+| 07 | Percentage rollout (extension) | 06 | ready | – | – |
 | 08 | CI, Docker, README | 03–07 | blocked | – | – |
 
 ## Journey to destination
-[x] 01 scaffold → [x] 02 persistence → [x] 03 CRUD API → [x] 04 rule engine → [x] 05 evaluate endpoint → [ ] 06 cache → [ ] 07 rollout → [ ] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
+[x] 01 scaffold → [x] 02 persistence → [x] 03 CRUD API → [x] 04 rule engine → [x] 05 evaluate endpoint → [x] 06 cache → [ ] 07 rollout → [ ] 08 CI/Docker/docs → 🏁 REST service that stores flags and dynamically evaluates them against user context, with zero-DB-hit warm reads
 
 ## Log
 ### 2026-07-18 — 01 Project scaffold
@@ -109,3 +109,20 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 - Suite: `mvn -B verify` BUILD SUCCESS (45/45)
 - Fixes: none required (QA-01 documented as no-op)
 - Result: clean — bullet 05 remains done; frontier still 06
+
+### 2026-07-18 — 06 Two-layer cache + graceful fallback
+- Status: done
+- Tests: `mvn -B verify` — Tests run: 58, Failures: 0, Errors: 0
+  - `shouldSkipRepositoryOnL2Hit`
+  - `shouldSkipRepositoryOnL1HitAndPopulateL2`
+  - `shouldHitRepositoryOnceThenServeFromCaches`
+  - `shouldIsolateResultsBetweenDifferentContexts`
+  - `shouldHashNumericAndStringAttributeValuesDifferently`
+  - `shouldEvictBothLayersOnFlagUpdate`
+  - `shouldReturn404AfterDeleteDespiteWarmCaches`
+  - `shouldServeStaleFromL1WhenDbDown`
+  - `shouldPropagate503WhenDbDownAndCacheCold`
+  - `shouldExpireL1EntriesAfterTtl`
+  - `shouldPurgeKeyIndexOnEvictAllForFlag`
+  - (+ prior suite)
+- Notes: L1 `FlagCache` + L2 `EvaluationResultCache` (Caffeine; TTLs/sizes from `ffaas.cache.*`); evaluate L2→L1→repo; typed SHA-256 context keys; afterCommit eviction on update/delete; DB-down stale L1 + WARN else rethrow→503. Manual compose stop-postgres deferred (no Docker).

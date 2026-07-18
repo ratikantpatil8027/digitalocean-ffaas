@@ -2,6 +2,9 @@ package com.ffaas.service;
 
 import com.ffaas.api.dto.EvaluateRequest;
 import com.ffaas.api.dto.EvaluateResponse;
+import com.ffaas.cache.EvaluationResultCache;
+import com.ffaas.cache.FlagCache;
+import com.ffaas.config.CacheProperties;
 import com.ffaas.domain.Condition;
 import com.ffaas.domain.FeatureFlag;
 import com.ffaas.domain.Operator;
@@ -16,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,7 +39,13 @@ class EvaluationServiceTest {
 
     @BeforeEach
     void setUp() {
-        evaluationService = new EvaluationService(repository, new RuleEvaluator());
+        CacheProperties properties = new CacheProperties(
+                Duration.ofSeconds(60), 10_000, Duration.ofSeconds(30), 10_000);
+        evaluationService = new EvaluationService(
+                repository,
+                new RuleEvaluator(),
+                new FlagCache(properties),
+                new EvaluationResultCache(properties));
     }
 
     @Test

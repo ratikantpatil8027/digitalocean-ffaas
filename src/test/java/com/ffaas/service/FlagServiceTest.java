@@ -5,6 +5,8 @@ import com.ffaas.api.dto.CreateFlagRequest;
 import com.ffaas.api.dto.FlagResponse;
 import com.ffaas.api.dto.RuleDto;
 import com.ffaas.api.dto.UpdateFlagRequest;
+import com.ffaas.cache.EvaluationResultCache;
+import com.ffaas.cache.FlagCache;
 import com.ffaas.domain.Condition;
 import com.ffaas.domain.FeatureFlag;
 import com.ffaas.domain.Operator;
@@ -38,6 +40,12 @@ class FlagServiceTest {
 
     @Mock
     private EntityManager entityManager;
+
+    @Mock
+    private FlagCache flagCache;
+
+    @Mock
+    private EvaluationResultCache evaluationResultCache;
 
     @InjectMocks
     private FlagService flagService;

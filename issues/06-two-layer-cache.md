@@ -4,7 +4,7 @@
 
 **Blocked by:** 05 — Evaluation endpoint.
 
-**Status:** blocked
+**Status:** done
 
 ## Spec (from PROMPTS.md §6, ARCHITECTURE.md §4)
 - L1 `FlagCache`: Caffeine `Cache<String, FeatureFlag>`, expireAfterWrite 60s, max 10_000, recordStats; values are immutable detached snapshots. API: get/put/evict.
@@ -15,17 +15,17 @@
 - `FlagService`: after successful update/delete **commit** (TransactionSynchronization afterCommit or post-return), `L1.evict(key)` + `L2.evictAllForFlag(key)`; never on rollback.
 
 ## Acceptance criteria (as test names)
-- [ ] `shouldSkipRepositoryOnL2Hit`
-- [ ] `shouldSkipRepositoryOnL1HitAndPopulateL2`
-- [ ] `shouldHitRepositoryOnceThenServeFromCaches`
-- [ ] `shouldIsolateResultsBetweenDifferentContexts`
-- [ ] `shouldHashNumericAndStringAttributeValuesDifferently`
-- [ ] `shouldEvictBothLayersOnFlagUpdate`
-- [ ] `shouldReturn404AfterDeleteDespiteWarmCaches`
-- [ ] `shouldServeStaleFromL1WhenDbDown`
-- [ ] `shouldPropagate503WhenDbDownAndCacheCold`
-- [ ] `shouldExpireL1EntriesAfterTtl` (fake Ticker)
-- [ ] `shouldPurgeKeyIndexOnEvictAllForFlag`
+- [x] `shouldSkipRepositoryOnL2Hit`
+- [x] `shouldSkipRepositoryOnL1HitAndPopulateL2`
+- [x] `shouldHitRepositoryOnceThenServeFromCaches`
+- [x] `shouldIsolateResultsBetweenDifferentContexts`
+- [x] `shouldHashNumericAndStringAttributeValuesDifferently`
+- [x] `shouldEvictBothLayersOnFlagUpdate`
+- [x] `shouldReturn404AfterDeleteDespiteWarmCaches`
+- [x] `shouldServeStaleFromL1WhenDbDown`
+- [x] `shouldPropagate503WhenDbDownAndCacheCold`
+- [x] `shouldExpireL1EntriesAfterTtl` (fake Ticker)
+- [x] `shouldPurgeKeyIndexOnEvictAllForFlag`
 
 ## Manual verification
 - [ ] create flag → evaluate ×2 → `docker compose stop postgres` → same context still 200; uncached flag → 503; `start postgres` recovers

@@ -18,3 +18,10 @@ management:
     web:
       exposure:
         include: health
+
+ffaas:
+  cache:
+    flag-ttl: 60s
+    flag-max-size: 10000
+    evaluation-ttl: 30s
+    evaluation-max-size: 10000

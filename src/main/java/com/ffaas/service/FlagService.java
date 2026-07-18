@@ -7,6 +7,8 @@ import com.ffaas.api.dto.PagedResponse;
 import com.ffaas.api.dto.RuleDto;
 import com.ffaas.api.dto.RuleResponse;
 import com.ffaas.api.dto.UpdateFlagRequest;
+import com.ffaas.cache.EvaluationResultCache;
+import com.ffaas.cache.FlagCache;
 import com.ffaas.domain.Condition;
 import com.ffaas.domain.FeatureFlag;
 import com.ffaas.domain.Rule;
@@ -17,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.List;
 
@@ -25,10 +29,19 @@ public class FlagService {
 
     private final FeatureFlagRepository repository;
     private final EntityManager entityManager;
+    private final FlagCache flagCache;
+    private final EvaluationResultCache evaluationResultCache;
 
-    public FlagService(FeatureFlagRepository repository, EntityManager entityManager) {
+    public FlagService(
+            FeatureFlagRepository repository,
+            EntityManager entityManager,
+            FlagCache flagCache,
+            EvaluationResultCache evaluationResultCache
+    ) {
         this.repository = repository;
         this.entityManager = entityManager;
+        this.flagCache = flagCache;
+        this.evaluationResultCache = evaluationResultCache;
     }
 
     @Transactional
@@ -66,13 +79,34 @@ public class FlagService {
         FeatureFlag flag = findOrThrow(key);
         applyMutableFields(flag, request.name(), request.description(), request.enabled(),
                 request.defaultState(), request.rules());
-        return toResponse(repository.save(flag));
+        FlagResponse response = toResponse(repository.save(flag));
+        evictCachesAfterCommit(key);
+        return response;
     }
 
     @Transactional
     public void delete(String key) {
         FeatureFlag flag = findOrThrow(key);
         repository.delete(flag);
+        evictCachesAfterCommit(key);
+    }
+
+    private void evictCachesAfterCommit(String key) {
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    doEvict(key);
+                }
+            });
+        } else {
+            doEvict(key);
+        }
+    }
+
+    private void doEvict(String key) {
+        flagCache.evict(key);
+        evaluationResultCache.evictAllForFlag(key);
     }
 
     private FeatureFlag findOrThrow(String key) {
