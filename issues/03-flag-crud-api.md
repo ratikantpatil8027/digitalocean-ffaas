@@ -4,7 +4,7 @@
 
 **Blocked by:** 02 — Domain + persistence.
 
-**Status:** blocked
+**Status:** done
 
 ## Spec (from PROMPTS.md §3, PRD.md §3 + §6)
 - Endpoints: `POST /api/v1/flags` (201 + Location; 409 on dup), `GET /flags/{key}`, `GET /flags?page&size` (items/page/size/totalItems; default 20, max 100), `PUT /flags/{key}` (full replace; key immutable — body key must match path else 400; rules replaced atomically), `DELETE /flags/{key}` (204).
@@ -14,19 +14,20 @@
 - `GlobalExceptionHandler` mappings per ARCHITECTURE.md §6 (VALIDATION_FAILED, MALFORMED_JSON, FLAG_NOT_FOUND, DUPLICATE_KEY, SERVICE_UNAVAILABLE, INTERNAL_ERROR).
 
 ## Acceptance criteria (as test names)
-- [ ] `shouldCreateFlagAndReturn201WithLocation`
-- [ ] `shouldReturn409WhenKeyAlreadyExists`
-- [ ] `shouldReturn400WithFieldPathWhenInOperatorHasScalarValue`
-- [ ] `shouldReturn400WhenRulePrioritiesDuplicate`
-- [ ] `shouldReturn400WhenBodyKeyDiffersFromPathOnUpdate`
-- [ ] `shouldReturn404ForUnknownFlagOnGetUpdateDelete`
-- [ ] `shouldListFlagsWithPagingEnvelope`
-- [ ] `shouldReplaceRulesAtomicallyOnUpdate`
-- [ ] `shouldMapUnexpectedExceptionTo500WithSafeMessage`
-- [ ] `shouldMapMalformedJsonTo400`
+- [x] `shouldCreateFlagAndReturn201WithLocation`
+- [x] `shouldReturn409WhenKeyAlreadyExists`
+- [x] `shouldReturn400WithFieldPathWhenInOperatorHasScalarValue`
+- [x] `shouldReturn400WhenRulePrioritiesDuplicate`
+- [x] `shouldReturn400WhenBodyKeyDiffersFromPathOnUpdate`
+- [x] `shouldReturn404ForUnknownFlagOnGetUpdateDelete`
+- [x] `shouldListFlagsWithPagingEnvelope`
+- [x] `shouldReplaceRulesAtomicallyOnUpdate`
+- [x] `shouldMapUnexpectedExceptionTo500WithSafeMessage`
+- [x] `shouldMapMalformedJsonTo400`
 
 ## Manual verification
-- [ ] curl the PRD §3.1 sample flag: create → 201, re-create → 409, invalid IN payload → 400 with field details
+- [ ] curl the PRD §3.1 sample flag: create → 201, re-create → 409, invalid IN payload → 400 with field details (Docker unavailable in agent environment)
+- [x] `mvn -B verify` green (21/21)
 
 ## Context manifest (verify at implement time — may have drifted)
 - src/main/java/com/ffaas/domain/ — FeatureFlag, Rule, Condition, Operator (bullet 02)
