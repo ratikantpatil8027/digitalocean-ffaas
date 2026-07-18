@@ -232,6 +232,26 @@ class FlagControllerTest {
     }
 
     @Test
+    void shouldReturn400WhenRuleElementIsNull() throws Exception {
+        String invalid = """
+                {
+                  "key": "null-rule-flag",
+                  "name": "Null Rule",
+                  "enabled": true,
+                  "defaultState": false,
+                  "rules": [null]
+                }
+                """;
+
+        mockMvc.perform(post("/api/v1/flags")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalid))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.details[*].field", hasItem(containsString("rules"))));
+    }
+
+    @Test
     void shouldMapMalformedJsonTo400() throws Exception {
         mockMvc.perform(post("/api/v1/flags")
                         .contentType(MediaType.APPLICATION_JSON)

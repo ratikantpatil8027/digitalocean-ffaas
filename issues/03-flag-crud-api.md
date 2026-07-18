@@ -27,10 +27,22 @@
 
 ## Manual verification
 - [ ] curl the PRD §3.1 sample flag: create → 201, re-create → 409, invalid IN payload → 400 with field details (Docker unavailable in agent environment)
-- [x] `mvn -B verify` green (21/21)
+- [x] `mvn -B verify` green (23/23 after QA fixes)
 
 ## Context manifest (verify at implement time — may have drifted)
 - src/main/java/com/ffaas/domain/ — FeatureFlag, Rule, Condition, Operator (bullet 02)
 - src/main/java/com/ffaas/repository/FeatureFlagRepository.java
 - PRD.md §3, §6 — contract + error model (authoritative)
 - ARCHITECTURE.md §6 — handler mapping table
+
+## QA gate (2026-07-18)
+
+**Reviews:** Bugbot — 2 findings (see fix tasks). Spec/compliance against Prompt 3 / this issue.
+
+**Suite (pre-fix):** `mvn -B verify` — Tests run: 21, Failures: 0, Errors: 0, BUILD SUCCESS.
+
+**Suite (post-fix):** `mvn -B verify` — Tests run: 23, Failures: 0, Errors: 0, BUILD SUCCESS.
+
+### Fix tasks
+- [x] QA-01: PUT reusing `(flag_id, priority)` fails — Hibernate inserts new rules before orphan deletes hit unique constraint → `entityManager.flush()` after `rules.clear()`; regression `shouldUpdateFlagReusingSameRulePriorities`
+- [x] QA-02: Null elements in `rules` (and conditions) skipped by `FlagRulesValidator` → 500 on toEntity; reject with 400 via `@NotNull` on list elements + validator; test `shouldReturn400WhenRuleElementIsNull`

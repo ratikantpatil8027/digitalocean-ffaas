@@ -17,6 +17,6 @@ public record UpdateFlagRequest(
         @Size(max = 500) String description,
         @NotNull Boolean enabled,
         @NotNull Boolean defaultState,
-        @NotNull @Size(max = 50) List<@Valid RuleDto> rules
+        @NotNull @Size(max = 50) List<@NotNull @Valid RuleDto> rules
 ) implements FlagRulesCarrier {
 }

@@ -28,6 +28,10 @@ public class FlagRulesValidator implements ConstraintValidator<ValidFlagRules, F
         for (int i = 0; i < rules.size(); i++) {
             RuleDto rule = rules.get(i);
             if (rule == null) {
+                valid = false;
+                context.buildConstraintViolationWithTemplate("must not be null")
+                        .addPropertyNode("rules[" + i + "]")
+                        .addConstraintViolation();
                 continue;
             }
             if (!priorities.add(rule.priority())) {
@@ -41,7 +45,14 @@ public class FlagRulesValidator implements ConstraintValidator<ValidFlagRules, F
             }
             for (int j = 0; j < rule.conditions().size(); j++) {
                 ConditionDto condition = rule.conditions().get(j);
-                if (condition == null || condition.operator() == null) {
+                if (condition == null) {
+                    valid = false;
+                    context.buildConstraintViolationWithTemplate("must not be null")
+                            .addPropertyNode("rules[" + i + "].conditions[" + j + "]")
+                            .addConstraintViolation();
+                    continue;
+                }
+                if (condition.operator() == null) {
                     continue;
                 }
                 String issue = validateOperatorValue(condition.operator(), condition.value());

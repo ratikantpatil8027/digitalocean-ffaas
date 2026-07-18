@@ -11,7 +11,7 @@ import java.util.List;
 public record RuleDto(
         @Min(0) int priority,
         @NotNull Boolean serve,
-        @NotNull @Size(min = 1, max = 20) List<@Valid ConditionDto> conditions,
+        @NotNull @Size(min = 1, max = 20) List<@NotNull @Valid ConditionDto> conditions,
         @Min(0) @Max(100) Integer rolloutPercentage
 ) {
 }

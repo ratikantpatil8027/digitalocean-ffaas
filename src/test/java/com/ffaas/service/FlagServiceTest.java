@@ -10,6 +10,7 @@ import com.ffaas.domain.FeatureFlag;
 import com.ffaas.domain.Operator;
 import com.ffaas.domain.Rule;
 import com.ffaas.repository.FeatureFlagRepository;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -34,6 +35,9 @@ class FlagServiceTest {
 
     @Mock
     private FeatureFlagRepository repository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private FlagService flagService;

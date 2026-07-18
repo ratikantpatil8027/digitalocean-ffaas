@@ -5,7 +5,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 |----|--------|-----------|--------|-------|--------|
 | 01 | Project scaffold | — | done | 1/1 green (`contextLoads`); QA clean | b7f9342 |
 | 02 | Domain + persistence | 01 | done | 6/6 green (5 repo + contextLoads) | da0a0d7 |
-| 03 | Flag CRUD API | 02 | done | 21/21 green (9 controller + 6 service + 5 repo + contextLoads) | 23efea6 |
+| 03 | Flag CRUD API | 02 | done | 23/23 green; QA clean | 23efea6 |
 | 04 | Rule engine (core) | 02 | ready | – | – |
 | 05 | Evaluation endpoint | 03, 04 | blocked | – | – |
 | 06 | Two-layer cache + fallback | 05 | blocked | – | – |
@@ -53,3 +53,11 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
   - `shouldMapMalformedJsonTo400`
   - (+ FlagService create/duplicate/race/not-found; prior repo + contextLoads)
 - Notes: FlagController + FlagService + GlobalExceptionHandler; DTO records; `@ValidFlagRules` for unique priorities + operator/value compatibility; no cache/eval yet. Manual curl against compose deferred (no Docker).
+
+### 2026-07-18 — 03 QA gate
+- Reviews: Bugbot — 2 findings (both fixed)
+- Suite: `mvn -B verify` BUILD SUCCESS (23/23 post-fix)
+- Fixes:
+  - QA-01: flush orphan rule deletes before re-insert so PUT can reuse priorities (`FlagService` + `FlagServicePersistenceTest`)
+  - QA-02: reject null `rules`/`conditions` elements with 400 (`@NotNull` + validator + controller test)
+- Result: clean — bullet 03 remains done; frontier still 04

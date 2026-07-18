@@ -11,6 +11,7 @@ import com.ffaas.domain.Condition;
 import com.ffaas.domain.FeatureFlag;
 import com.ffaas.domain.Rule;
 import com.ffaas.repository.FeatureFlagRepository;
+import jakarta.persistence.EntityManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +24,11 @@ import java.util.List;
 public class FlagService {
 
     private final FeatureFlagRepository repository;
+    private final EntityManager entityManager;
 
-    public FlagService(FeatureFlagRepository repository) {
+    public FlagService(FeatureFlagRepository repository, EntityManager entityManager) {
         this.repository = repository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
@@ -89,7 +92,9 @@ public class FlagService {
         flag.setDescription(description);
         flag.setEnabled(enabled);
         flag.setDefaultState(defaultState);
+        // Flush orphan deletes before inserts so reused priorities do not violate UNIQUE(flag_id, priority).
         flag.getRules().clear();
+        entityManager.flush();
         if (rules != null) {
             for (RuleDto ruleDto : rules) {
                 flag.addRule(toEntity(ruleDto));
