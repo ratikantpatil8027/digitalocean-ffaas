@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ffaas
+      POSTGRES_USER: ffaas
+      POSTGRES_PASSWORD: ffaas
+    ports:
+      - "5432:5432"
+    volumes:
+      - ffaas_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ffaas -d ffaas"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ffaas_pgdata:
