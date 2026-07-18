@@ -24,3 +24,15 @@
 - PRD.md — product contract (read §1, §7)
 - ARCHITECTURE.md — package layout §1, config expectations
 - Greenfield: no source files exist yet
+
+## QA gate (2026-07-18)
+
+**Reviews:** Bugbot — no findings. Spec/compliance pass against Prompt 1 / this issue.
+
+**Suite:** `mvn -B verify` — Tests run: 1, Failures: 0, Errors: 0, BUILD SUCCESS.
+
+**Extra checks (not committed):** Jackson `FAIL_ON_UNKNOWN_PROPERTIES` verified via transient ObjectMapper test (green); Docker still unavailable — manual health check remains deferred.
+
+### Fix tasks
+- [x] QA-01: Correct TRACKER.md Commit column for bullet 01 (`6f4851d` → `b7f9342`) — stale after amend loop
+- [x] QA-02: No code defects in scaffold scope — nothing to change in `src/` / `pom.xml` / compose

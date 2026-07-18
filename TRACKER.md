@@ -3,7 +3,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 
 | NN | Bullet | Blocked by | Status | Tests | Commit |
 |----|--------|-----------|--------|-------|--------|
-| 01 | Project scaffold | — | done | 1/1 green (`contextLoads`) | 6f4851d |
+| 01 | Project scaffold | — | done | 1/1 green (`contextLoads`); QA clean | b7f9342 |
 | 02 | Domain + persistence | 01 | ready | – | – |
 | 03 | Flag CRUD API | 02 | blocked | – | – |
 | 04 | Rule engine (core) | 02 | blocked | – | – |
@@ -20,3 +20,9 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 - Status: done
 - Tests: `mvn -B verify` — Tests run: 1, Failures: 0, Errors: 0 (`contextLoads` green under `test` profile / H2)
 - Notes: Spring Boot 3.4.5 / Java 21 Maven skeleton; packages api/service/engine/cache/repository/domain/config; docker-compose Postgres 16; Jackson FAIL_ON_UNKNOWN_PROPERTIES + ISO-8601; no business endpoints. Manual `docker compose` + health check not run (Docker not installed in this environment).
+
+### 2026-07-18 — 01 QA gate
+- Reviews: Bugbot — 0 findings; Jackson unknown-property rejection spot-checked green
+- Suite: `mvn -B verify` BUILD SUCCESS (1/1)
+- Fixes: QA-01 TRACKER commit SHA corrected to `b7f9342`; no source fixes required
+- Result: clean — bullet 01 remains done; frontier still 02
