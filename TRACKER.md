@@ -5,7 +5,7 @@ PRD: ./PRD.md | Decisions: ./DECISIONS.md | Design: ./ARCHITECTURE.md | Prompts 
 |----|--------|-----------|--------|-------|--------|
 | 01 | Project scaffold | — | done | 1/1 green (`contextLoads`); QA clean | b7f9342 |
 | 02 | Domain + persistence | 01 | done | 6/6 green (5 repo + contextLoads) | da0a0d7 |
-| 03 | Flag CRUD API | 02 | done | 21/21 green (9 controller + 6 service + 5 repo + contextLoads) | 022a62d |
+| 03 | Flag CRUD API | 02 | done | 21/21 green (9 controller + 6 service + 5 repo + contextLoads) | 23efea6 |
 | 04 | Rule engine (core) | 02 | ready | – | – |
 | 05 | Evaluation endpoint | 03, 04 | blocked | – | – |
 | 06 | Two-layer cache + fallback | 05 | blocked | – | – |
